@@ -1,9 +1,8 @@
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import sqlite3
-from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 app.config['DATABASE'] = 'instance/todo.db'
-
 
 # Function to connect to the database
 def get_db_connection():
@@ -11,16 +10,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row  # Access rows as dictionaries
     return conn
 
-
-# Initialize the database schema
-def init_db():
-    with app.app_context():
-        conn = get_db_connection()
-        with open('schema.sql', 'r') as f:
-            conn.executescript(f.read())
-        conn.close()
-
-
+# Route to show the task list
 @app.route("/")
 def index():
     conn = get_db_connection()
@@ -28,39 +18,53 @@ def index():
     conn.close()
     return render_template("index.html", tasks=tasks)
 
+# Route to add a new task
+@app.route("/tasks", methods=["POST"])
+def add_task():
+    task_description = request.form["description"]
+    if task_description:
+        conn = get_db_connection()
+        conn.execute("INSERT INTO tasks (description) VALUES (?)", (task_description,))
+        conn.commit()
+        conn.close()
+    return redirect(url_for("index"))
 
-@app.route("/tasks", methods=["GET", "POST"])
-def tasks():
+# Route to update a task description (Edit Task)
+@app.route("/tasks/<int:task_id>/edit", methods=["POST"])
+def edit_task(task_id):
+    new_description = request.form["description"]
     conn = get_db_connection()
-
-    if request.method == "POST":
-        data = request.get_json()  # Get the JSON data from the request body
-        task_description = data.get("description")
-
-        if task_description:
-            conn.execute("INSERT INTO tasks (description) VALUES (?)", (task_description,))
-            conn.commit()
-            conn.close()
-            return jsonify({"message": "Task added successfully!"}), 201
-        else:
-            return jsonify({"error": "Task description is required!"}), 400
-
-    tasks = conn.execute("SELECT * FROM tasks").fetchall()
-    conn.close()
-    return jsonify([dict(row) for row in tasks])
-
-
-@app.route("/tasks/<int:task_id>", methods=["PUT"])
-def update_task(task_id):
-    conn = get_db_connection()
-    updated_description = request.json.get("description")
-    conn.execute("UPDATE tasks SET description = ? WHERE id = ?", (updated_description, task_id))
+    conn.execute("UPDATE tasks SET description = ? WHERE id = ?", (new_description, task_id))
     conn.commit()
     conn.close()
-    return jsonify({"message": "Task updated successfully!"})
+    return jsonify({"status": "success", "message": "Task updated"})
 
+# Route to delete a task
+@app.route("/tasks/<int:task_id>/delete", methods=["POST"])
+def delete_task(task_id):
+    conn = get_db_connection()
+    conn.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success", "message": "Task deleted"})
+
+# Route to mark a task as done
+@app.route("/tasks/<int:task_id>/done", methods=["POST"])
+def mark_done(task_id):
+    conn = get_db_connection()
+    conn.execute("UPDATE tasks SET completed = 1 WHERE id = ?", (task_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success", "message": "Task marked as done"})
+
+# Route to mark a task as undone
+@app.route("/tasks/<int:task_id>/undone", methods=["POST"])
+def mark_undone(task_id):
+    conn = get_db_connection()
+    conn.execute("UPDATE tasks SET completed = 0 WHERE id = ?", (task_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success", "message": "Task marked as undone"})
 
 if __name__ == "__main__":
-    # Uncomment the line below if you want to initialize the database only once
-    # init_db()
     app.run(debug=True)

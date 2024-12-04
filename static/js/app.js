@@ -1,89 +1,81 @@
-const taskForm = document.getElementById("task-form");
-const taskList = document.getElementById("task-list");
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all the task edit buttons
+    const editBtns = document.querySelectorAll('.edit-btn');
 
-taskForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+    editBtns.forEach((editBtn) => {
+        editBtn.addEventListener('click', function() {
+            const taskItem = this.closest('.task');
+            const taskDescription = taskItem.querySelector('.task-description');
+            const taskInput = taskItem.querySelector('.task-input');
+            const taskId = taskItem.id.split('-')[1]; // Extract task ID from the element ID
 
-    const taskInput = document.getElementById("task-input");
-    const taskDescription = taskInput.value.trim();
+            // Toggle between edit and save mode
+            if (taskInput.style.display === 'none') {
+                taskDescription.style.display = 'none';
+                taskInput.style.display = 'block';
+                taskInput.focus();
+                this.innerHTML = '<i class="fas fa-save"></i>';
+            } else {
+                const updatedDescription = taskInput.value.trim();
+                if (updatedDescription) {
+                    taskDescription.textContent = updatedDescription;
+                    taskDescription.style.display = 'block';
+                    taskInput.style.display = 'none';
+                    this.innerHTML = '<i class="fas fa-edit"></i>';
 
-    if (taskDescription) {
-        // Send the task to the server
-        fetch("/tasks", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ description: taskDescription }),  // Sending as JSON
-        })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.message) {
-                // Add the new task to the list
-                const listItem = document.createElement("li");
-                listItem.classList.add("task");
-                listItem.innerHTML = `
-                    <div class="task-content">
-                        <span class="task-description">${taskDescription}</span>
-                        <input class="task-input" type="text" style="display:none;" value="${taskDescription}">
-                    </div>
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                    <button class="done-btn">Done</button>
-                `;
-                taskList.appendChild(listItem);
-                taskInput.value = "";
-                addTaskListeners(listItem);
+                    // Send the updated description to the backend via POST request
+                    fetch(`/tasks/${taskId}/edit`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `description=${encodeURIComponent(updatedDescription)}`
+                    }).then(response => response.json())
+                      .then(data => {
+                          console.log('Task updated:', data.message);
+                      }).catch(error => {
+                          console.error('Error updating task:', error);
+                      });
+                }
             }
-        })
-        .catch((error) => {
-            console.error("Error adding task:", error);
         });
-    }
+    });
+
+    // Handle mark as done/undone
+    const doneBtns = document.querySelectorAll('.done-btn, .undo-btn');
+    doneBtns.forEach((btn) => {
+        btn.addEventListener('click', function(event) {
+            event.preventDefault();
+            const taskId = this.closest('.task').id.split('-')[1]; // Get task ID
+
+            fetch(this.closest('form').action, {
+                method: 'POST',
+            }).then(response => response.json())
+              .then(data => {
+                  console.log(data.message);
+                  location.reload(); // Reload page to reflect changes
+              }).catch(error => {
+                  console.error('Error:', error);
+              });
+        });
+    });
+
+    // Handle delete task
+    const deleteBtns = document.querySelectorAll('.delete-btn');
+    deleteBtns.forEach((deleteBtn) => {
+        deleteBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            const taskId = this.closest('.task').id.split('-')[1]; // Get task ID
+
+            fetch(this.closest('form').action, {
+                method: 'POST',
+            }).then(response => response.json())
+              .then(data => {
+                  console.log(data.message);
+                  location.reload(); // Reload page to remove task from the list
+              }).catch(error => {
+                  console.error('Error:', error);
+              });
+        });
+    });
 });
-
-// Add event listeners for task buttons (edit, delete, done)
-function addTaskListeners(taskItem) {
-    const editBtn = taskItem.querySelector(".edit-btn");
-    const deleteBtn = taskItem.querySelector(".delete-btn");
-    const doneBtn = taskItem.querySelector(".done-btn");
-    const taskDescription = taskItem.querySelector(".task-description");
-    const taskInput = taskItem.querySelector(".task-input");
-
-    editBtn.addEventListener("click", () => {
-        taskDescription.style.display = "none";
-        taskInput.style.display = "block";
-        editBtn.textContent = "Save";
-        editBtn.classList.add("save-btn");
-        editBtn.classList.remove("edit-btn");
-
-        // When the user clicks save, update the task
-        editBtn.addEventListener("click", () => {
-            const updatedDescription = taskInput.value.trim();
-            if (updatedDescription) {
-                taskDescription.textContent = updatedDescription;
-                taskDescription.style.display = "block";
-                taskInput.style.display = "none";
-                editBtn.textContent = "Edit";
-                editBtn.classList.add("edit-btn");
-                editBtn.classList.remove("save-btn");
-
-                // Send updated task to the server (optional)
-                // You can use a PUT request to update the task in the database.
-                // fetch(`/tasks/${taskItem.id}`, { method: 'PUT', body: JSON.stringify({ description: updatedDescription }) });
-            }
-        });
-    });
-
-    deleteBtn.addEventListener("click", () => {
-        taskItem.remove();
-    });
-
-    doneBtn.addEventListener("click", () => {
-        taskItem.classList.toggle("completed");
-        doneBtn.classList.toggle("completed");
-    });
-}
-
-// Initialize task listeners for tasks that are already in the DOM
-document.querySelectorAll('.task').forEach(addTaskListeners);

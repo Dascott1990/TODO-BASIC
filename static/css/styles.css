@@ -1,41 +1,58 @@
-/* General Layout */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7fc;
+/* Global Styling */
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
+    overflow-y: auto; /* Allow vertical scrolling */
+    padding: 0 15px; /* Add padding on the sides for small screens */
 }
 
 .container {
-    width: 80%;
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 20px;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 50px; /* Ensure some space from the top */
     background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
     border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Prevent internal scrolling */
+    flex: 1; /* Allow the container to expand and fill available space */
 }
 
 h1 {
     text-align: center;
-    font-size: 2em;
+    font-size: 2.5em;
+    color: #333;
     margin-bottom: 20px;
 }
 
+/* Form Styling */
 form {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 30px;
 }
 
-#task-input {
+form input[type="text"] {
     width: 80%;
     padding: 10px;
     font-size: 1.2em;
     border: 1px solid #ddd;
     border-radius: 5px;
+    outline: none;
 }
 
-button {
+form button {
     padding: 10px;
     font-size: 1em;
     background-color: #4CAF50;
@@ -44,9 +61,10 @@ button {
     border-radius: 5px;
     cursor: pointer;
     margin-left: 10px;
+    transition: background-color 0.3s;
 }
 
-button:hover {
+form button:hover {
     background-color: #45a049;
 }
 
@@ -54,75 +72,106 @@ button:hover {
 #task-list {
     list-style-type: none;
     padding: 0;
-    margin-top: 30px;
+    margin-bottom: 30px; /* Space for better scroll experience */
+    max-height: 500px; /* Limit the height of the task list */
+    overflow-y: auto; /* Allow scrolling within the task list if needed */
 }
 
 .task {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #f9f9f9;
-    margin-bottom: 10px;
+    background-color: #fff;
+    margin-bottom: 15px;
     padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
 .task:hover {
-    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+}
+
+.task.completed {
+    background-color: #e0ffe0;
+    color: #999;
+    text-decoration: line-through;
+    box-shadow: none;
 }
 
 .task-description {
     flex: 1;
     font-size: 1.2em;
     color: #333;
+    word-wrap: break-word;
+    cursor: pointer;
 }
 
+/* Input for Editing Task - Hidden by Default */
 .task-input {
-    display: none;
     width: 80%;
-    padding: 10px;
+    padding: 8px;
     font-size: 1.2em;
     border: 1px solid #ddd;
     border-radius: 5px;
+    display: none;
+    transition: display 0.3s ease;
 }
 
-.done-btn, .edit-btn, .delete-btn {
-    padding: 8px 12px;
-    font-size: 1em;
-    background-color: #ffeb3b;
-    color: #333;
-    border-radius: 5px;
-    cursor: pointer;
+.task-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+/* Buttons (Icons) Styling */
+.task .edit-btn,
+.task .done-btn,
+.task .delete-btn,
+.task .undo-btn {
+    font-size: 1.5em;
+    background: none;
     border: none;
-    margin-left: 5px;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
-.done-btn {
-    background-color: #4CAF50;
+.task .edit-btn:hover {
+    background-color: #f0f0f0;
 }
 
-.done-btn.completed {
-    background-color: #ccc;
-    text-decoration: line-through;
+.task .done-btn:hover {
+    background-color: #e8f5e9;
 }
 
-.delete-btn {
-    background-color: #f44336;
-    color: white;
+.task .delete-btn:hover {
+    background-color: #ffe5e5;
 }
 
-.edit-btn {
-    background-color: #2196F3;
+.task .undo-btn:hover {
+    background-color: #ffeb3b;
 }
 
-button:active {
-    transform: scale(0.98);
+/* Icons Color */
+.task .edit-btn {
+    color: #2196F3;
 }
 
-button:hover {
-    background-color: #3e8e41;
+.task .done-btn {
+    color: #4CAF50;
+}
+
+.task .delete-btn {
+    color: #f44336;
+}
+
+.task .undo-btn {
+    color: #ffeb3b;
 }
 
 /* Task Completed Styling */
@@ -136,37 +185,62 @@ button:hover {
     box-shadow: none;
 }
 
-/* Additional Styles for Edit/Save Input */
-.edit-btn.save-btn {
-    background-color: #4CAF50;
-    color: white;
+/* Footer (Optional if you want to add footer for any other content) */
+/* footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.9em;
+    color: #888;
+} */
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .container {
+        width: 90%;
+        padding: 15px;
+    }
+
+    form input[type="text"] {
+        width: 70%;
+        font-size: 1.1em;
+    }
+
+    form button {
+        width: 25%;
+        font-size: 1.1em;
+    }
+
+    .task {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .task-content {
+        width: 100%;
+    }
+
+    .task .edit-btn,
+    .task .done-btn,
+    .task .delete-btn,
+    .task .undo-btn {
+        font-size: 1.2em;
+        padding: 8px;
+    }
+
+    .task-input {
+        width: 100%;
+    }
 }
 
-.task-content {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
+@media (max-width: 400px) {
+    form input[type="text"] {
+        width: 60%;
+    }
 
-.task-content .task-description {
-    flex: 1;
-    font-size: 1.2em;
-    color: #333;
-}
-
-.task-content .task-input {
-    display: none;
-    width: 80%;
-    padding: 10px;
-    font-size: 1.2em;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.task-content .task-description.editing {
-    display: none;
-}
-
-.task-content .task-input.editing {
-    display: inline-block;
+    .task .edit-btn,
+    .task .done-btn,
+    .task .delete-btn,
+    .task .undo-btn {
+        font-size: 1.1em;
+    }
 }
