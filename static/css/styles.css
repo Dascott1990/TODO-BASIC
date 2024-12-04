@@ -1,0 +1,172 @@
+/* General Layout */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    justify-content: space-between;
+}
+
+#task-input {
+    width: 80%;
+    padding: 10px;
+    font-size: 1.2em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px;
+    font-size: 1em;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Task List Styling */
+#task-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 30px;
+}
+
+.task {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.task:hover {
+    transform: scale(1.05);
+}
+
+.task-description {
+    flex: 1;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.task-input {
+    display: none;
+    width: 80%;
+    padding: 10px;
+    font-size: 1.2em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.done-btn, .edit-btn, .delete-btn {
+    padding: 8px 12px;
+    font-size: 1em;
+    background-color: #ffeb3b;
+    color: #333;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    margin-left: 5px;
+}
+
+.done-btn {
+    background-color: #4CAF50;
+}
+
+.done-btn.completed {
+    background-color: #ccc;
+    text-decoration: line-through;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.edit-btn {
+    background-color: #2196F3;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+button:hover {
+    background-color: #3e8e41;
+}
+
+/* Task Completed Styling */
+.task.completed .task-description {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.task.completed {
+    background-color: #e0ffe0;
+    box-shadow: none;
+}
+
+/* Additional Styles for Edit/Save Input */
+.edit-btn.save-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.task-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.task-content .task-description {
+    flex: 1;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.task-content .task-input {
+    display: none;
+    width: 80%;
+    padding: 10px;
+    font-size: 1.2em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.task-content .task-description.editing {
+    display: none;
+}
+
+.task-content .task-input.editing {
+    display: inline-block;
+}
